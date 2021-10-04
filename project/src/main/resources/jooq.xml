@@ -9,6 +9,8 @@
     </jdbc>
 
     <generator>
+        <name>org.jooq.codegen.JavaGenerator</name>
+
         <database>
             <!-- The database dialect from jooq-meta. Available dialects are
                  named org.jooq.meta.[database].[database]Database.
@@ -77,17 +79,12 @@
 
                  Whitespace is ignored and comments are possible.
                  -->
-            <includes>.*</includes>
+            <includes>Sequences.*|Tables.*|Types.*|Views.*</includes>
 
             <!-- All elements that are excluded from your schema (A Java regular expression.
                  Use the pipe to separate several expressions). Excludes match before
                  includes, i.e. excludes have a higher priority -->
-            <excludes>
-                UNUSED_TABLE                # This table (unqualified name) should not be generated
-                | PREFIX_.*                   # Objects with a given prefix should not be generated
-                | SECRET_SCHEMA\.SECRET_TABLE # This table (qualified name) should not be generated
-                | SECRET_ROUTINE              # This routine (unqualified name) ...
-            </excludes>
+            <excludes/>
 
             <!-- The schema that is used locally as a source for meta information.
                  This could be your development schema or the production schema, etc
@@ -102,8 +99,8 @@
         <generate/>
 
         <target>
-            <packageName>sk.catheaven.model</packageName>
-            <directory>target/generated-sources/jooq</directory>
+            <packageName>test.generated</packageName>
+            <directory>src/main/java/sk/catheaven/model</directory>
             <encoding>UTF-8</encoding>
             <locale>en</locale>
             <clean>true</clean>
