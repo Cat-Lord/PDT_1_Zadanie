@@ -4,14 +4,16 @@
 package model;
 
 
-import model.tables.Accounts;
+import sk.catheaven.model.tables.Accounts;
+import model.tables.ConspiracyTheories;
 import model.tables.Countries;
 import model.tables.Hashtags;
 import model.tables.SpatialRefSys;
-import model.tables.TweetHashtags;
+import sk.catheaven.model.tables.TweetHashtags;
 import model.tables.TweetMentions;
 import model.tables.Tweets;
 import model.tables.records.AccountsRecord;
+import model.tables.records.ConspiracyTheoriesRecord;
 import model.tables.records.CountriesRecord;
 import model.tables.records.HashtagsRecord;
 import model.tables.records.SpatialRefSysRecord;
@@ -38,6 +40,8 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final UniqueKey<AccountsRecord> ACCOUNTS_PKEY = Internal.createUniqueKey(Accounts.ACCOUNTS, DSL.name("accounts_pkey"), new TableField[] { Accounts.ACCOUNTS.ID }, true);
+    public static final UniqueKey<ConspiracyTheoriesRecord> CONSPIRACY_THEORIES_ID_NAME_KEY = Internal.createUniqueKey(ConspiracyTheories.CONSPIRACY_THEORIES, DSL.name("conspiracy_theories_id_name_key"), new TableField[] { ConspiracyTheories.CONSPIRACY_THEORIES.ID, ConspiracyTheories.CONSPIRACY_THEORIES.NAME }, true);
+    public static final UniqueKey<ConspiracyTheoriesRecord> CONSPIRACY_THEORIES_PKEY = Internal.createUniqueKey(ConspiracyTheories.CONSPIRACY_THEORIES, DSL.name("conspiracy_theories_pkey"), new TableField[] { ConspiracyTheories.CONSPIRACY_THEORIES.ID }, true);
     public static final UniqueKey<CountriesRecord> COUNTRIES_CODE_KEY = Internal.createUniqueKey(Countries.COUNTRIES, DSL.name("countries_code_key"), new TableField[] { Countries.COUNTRIES.CODE }, true);
     public static final UniqueKey<CountriesRecord> COUNTRIES_PKEY = Internal.createUniqueKey(Countries.COUNTRIES, DSL.name("countries_pkey"), new TableField[] { Countries.COUNTRIES.ID }, true);
     public static final UniqueKey<HashtagsRecord> HASHTAGS_PKEY = Internal.createUniqueKey(Hashtags.HASHTAGS, DSL.name("hashtags_pkey"), new TableField[] { Hashtags.HASHTAGS.ID }, true);
@@ -53,6 +57,7 @@ public class Keys {
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final ForeignKey<ConspiracyTheoriesRecord, HashtagsRecord> CONSPIRACY_THEORIES__CONSPIRACY_THEORIES_HASHTAG_ID_FKEY = Internal.createForeignKey(ConspiracyTheories.CONSPIRACY_THEORIES, DSL.name("conspiracy_theories_hashtag_id_fkey"), new TableField[] { ConspiracyTheories.CONSPIRACY_THEORIES.HASHTAG_ID }, Keys.HASHTAGS_PKEY, new TableField[] { Hashtags.HASHTAGS.ID }, true);
     public static final ForeignKey<TweetHashtagsRecord, HashtagsRecord> TWEET_HASHTAGS__TWEET_HASHTAGS_HASHTAG_ID_FKEY = Internal.createForeignKey(TweetHashtags.TWEET_HASHTAGS, DSL.name("tweet_hashtags_hashtag_id_fkey"), new TableField[] { TweetHashtags.TWEET_HASHTAGS.HASHTAG_ID }, Keys.HASHTAGS_PKEY, new TableField[] { Hashtags.HASHTAGS.ID }, true);
     public static final ForeignKey<TweetHashtagsRecord, TweetsRecord> TWEET_HASHTAGS__TWEET_HASHTAGS_TWEET_ID_FKEY = Internal.createForeignKey(TweetHashtags.TWEET_HASHTAGS, DSL.name("tweet_hashtags_tweet_id_fkey"), new TableField[] { TweetHashtags.TWEET_HASHTAGS.TWEET_ID }, Keys.TWEETS_PKEY, new TableField[] { Tweets.TWEETS.ID }, true);
     public static final ForeignKey<TweetMentionsRecord, AccountsRecord> TWEET_MENTIONS__TWEET_MENTIONS_ACCOUNT_ID_FKEY = Internal.createForeignKey(TweetMentions.TWEET_MENTIONS, DSL.name("tweet_mentions_account_id_fkey"), new TableField[] { TweetMentions.TWEET_MENTIONS.ACCOUNT_ID }, Keys.ACCOUNTS_PKEY, new TableField[] { Accounts.ACCOUNTS.ID }, true);

@@ -4,7 +4,7 @@
 package model.tables.records;
 
 
-import model.tables.Accounts;
+import sk.catheaven.model.tables.Accounts;
 
 import org.jooq.Field;
 import org.jooq.Record1;

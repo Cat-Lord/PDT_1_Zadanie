@@ -25,6 +25,7 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
+import sk.catheaven.model.tables.Accounts;
 
 
 /**
@@ -122,7 +123,7 @@ public class TweetMentions extends TableImpl<TweetMentionsRecord> {
     }
 
     private transient Accounts _accounts;
-    private transient Tweets _tweets;
+    private transient model.tables.Tweets _tweets;
 
     public Accounts accounts() {
         if (_accounts == null)
@@ -131,9 +132,9 @@ public class TweetMentions extends TableImpl<TweetMentionsRecord> {
         return _accounts;
     }
 
-    public Tweets tweets() {
+    public model.tables.Tweets tweets() {
         if (_tweets == null)
-            _tweets = new Tweets(this, Keys.TWEET_MENTIONS__TWEET_MENTIONS_TWEET_ID_FKEY);
+            _tweets = new model.tables.Tweets(this, Keys.TWEET_MENTIONS__TWEET_MENTIONS_TWEET_ID_FKEY);
 
         return _tweets;
     }

@@ -25,6 +25,7 @@ import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
+import sk.catheaven.model.tables.Accounts;
 
 
 /**
@@ -166,7 +167,7 @@ public class Tweets extends TableImpl<TweetsRecord> {
     }
 
     private transient Accounts _accounts;
-    private transient Countries _countries;
+    private transient model.tables.Countries _countries;
     private transient Tweets _tweets;
 
     public Accounts accounts() {
@@ -176,9 +177,9 @@ public class Tweets extends TableImpl<TweetsRecord> {
         return _accounts;
     }
 
-    public Countries countries() {
+    public model.tables.Countries countries() {
         if (_countries == null)
-            _countries = new Countries(this, Keys.TWEETS__TWEETS_COUNTRY_ID_FKEY);
+            _countries = new model.tables.Countries(this, Keys.TWEETS__TWEETS_COUNTRY_ID_FKEY);
 
         return _countries;
     }
