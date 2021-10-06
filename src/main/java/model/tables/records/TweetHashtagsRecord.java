@@ -4,7 +4,7 @@
 package model.tables.records;
 
 
-import model.tables.TweetHashtags;
+import sk.catheaven.model.tables.TweetHashtags;
 
 import org.jooq.Field;
 import org.jooq.Record1;
