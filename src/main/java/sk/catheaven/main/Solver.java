@@ -1,4 +1,4 @@
-package sk.catheaven.ignore;
+package sk.catheaven.main;
 
 import com.vader.sentiment.analyzer.SentimentAnalyzer;
 import com.vdurmont.emoji.EmojiManager;
@@ -13,7 +13,8 @@ import org.jooq.impl.DSL;
 import java.io.IOException;
 import java.sql.Connection;
 
-import static model.tables.Hashtags.HASHTAGS;
+
+import static sk.catheaven.model.tables.Hashtags.HASHTAGS;
 import static sk.catheaven.model.tables.TweetHashtags.TWEET_HASHTAGS;
 import static sk.catheaven.model.tables.Tweets.TWEETS;
 import static org.jooq.impl.DSL.row;
