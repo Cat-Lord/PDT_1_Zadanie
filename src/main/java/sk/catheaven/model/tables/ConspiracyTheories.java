@@ -4,14 +4,11 @@
 package sk.catheaven.model.tables;
 
 
-import java.util.Arrays;
-import java.util.List;
-
 import org.jooq.Field;
 import org.jooq.ForeignKey;
 import org.jooq.Name;
 import org.jooq.Record;
-import org.jooq.Row3;
+import org.jooq.Row2;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -57,11 +54,6 @@ public class ConspiracyTheories extends TableImpl<ConspiracyTheoriesRecord> {
      */
     public final TableField<ConspiracyTheoriesRecord, String> NAME = createField(DSL.name("name"), SQLDataType.VARCHAR(128).nullable(false), this, "");
 
-    /**
-     * The column <code>public.conspiracy_theories.hashtag_id</code>.
-     */
-    public final TableField<ConspiracyTheoriesRecord, Integer> HASHTAG_ID = createField(DSL.name("hashtag_id"), SQLDataType.INTEGER.nullable(false), this, "");
-
     private ConspiracyTheories(Name alias, Table<ConspiracyTheoriesRecord> aliased) {
         this(alias, aliased, null);
     }
@@ -106,20 +98,6 @@ public class ConspiracyTheories extends TableImpl<ConspiracyTheoriesRecord> {
     }
 
     @Override
-    public List<ForeignKey<ConspiracyTheoriesRecord, ?>> getReferences() {
-        return Arrays.asList(Keys.CONSPIRACY_THEORIES__CONSPIRACY_THEORIES_HASHTAG_ID_FKEY);
-    }
-
-    private transient Hashtags _hashtags;
-
-    public Hashtags hashtags() {
-        if (_hashtags == null)
-            _hashtags = new Hashtags(this, Keys.CONSPIRACY_THEORIES__CONSPIRACY_THEORIES_HASHTAG_ID_FKEY);
-
-        return _hashtags;
-    }
-
-    @Override
     public ConspiracyTheories as(String alias) {
         return new ConspiracyTheories(DSL.name(alias), this);
     }
@@ -146,11 +124,11 @@ public class ConspiracyTheories extends TableImpl<ConspiracyTheoriesRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row3 type methods
+    // Row2 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row3<Integer, String, Integer> fieldsRow() {
-        return (Row3) super.fieldsRow();
+    public Row2<Integer, String> fieldsRow() {
+        return (Row2) super.fieldsRow();
     }
 }

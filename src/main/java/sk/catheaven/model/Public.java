@@ -11,6 +11,7 @@ import org.jooq.Catalog;
 import org.jooq.Configuration;
 import org.jooq.Field;
 import org.jooq.Result;
+import org.jooq.Sequence;
 import org.jooq.Table;
 import org.jooq.UDT;
 import org.jooq.impl.SchemaImpl;
@@ -451,6 +452,14 @@ public class Public extends SchemaImpl {
     @Override
     public Catalog getCatalog() {
         return DefaultCatalog.DEFAULT_CATALOG;
+    }
+
+    @Override
+    public final List<Sequence<?>> getSequences() {
+        return Arrays.asList(
+            Sequences.CONSPIRACY_THEORIES_SEQ,
+            Sequences.HASHTAG_CONSPIRACY_THEORY_SEQ
+        );
     }
 
     @Override

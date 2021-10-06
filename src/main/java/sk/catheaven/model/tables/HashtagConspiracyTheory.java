@@ -55,13 +55,13 @@ public class HashtagConspiracyTheory extends TableImpl<HashtagConspiracyTheoryRe
     /**
      * The column <code>public.hashtag_conspiracy_theory.hashtag_id</code>.
      */
-    public final TableField<HashtagConspiracyTheoryRecord, Integer> HASHTAG_ID = createField(DSL.name("hashtag_id"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<HashtagConspiracyTheoryRecord, Integer> HASHTAG_ID = createField(DSL.name("hashtag_id"), SQLDataType.INTEGER, this, "");
 
     /**
      * The column
      * <code>public.hashtag_conspiracy_theory.conspiracy_theory_id</code>.
      */
-    public final TableField<HashtagConspiracyTheoryRecord, Integer> CONSPIRACY_THEORY_ID = createField(DSL.name("conspiracy_theory_id"), SQLDataType.INTEGER.nullable(false), this, "");
+    public final TableField<HashtagConspiracyTheoryRecord, Integer> CONSPIRACY_THEORY_ID = createField(DSL.name("conspiracy_theory_id"), SQLDataType.INTEGER, this, "");
 
     private HashtagConspiracyTheory(Name alias, Table<HashtagConspiracyTheoryRecord> aliased) {
         this(alias, aliased, null);

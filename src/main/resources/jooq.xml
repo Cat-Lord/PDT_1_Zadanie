@@ -25,8 +25,8 @@
         <generate/>
 
         <target>
-            <packageName/>
-            <directory>src/main/java/sk/catheaven/model</directory>
+            <packageName>sk.catheaven.model</packageName>
+            <directory>src/main/java</directory>
             <encoding>UTF-8</encoding>
             <locale>en</locale>
             <clean>true</clean>
