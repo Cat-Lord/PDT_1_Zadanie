@@ -10,14 +10,14 @@ import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
+
 import java.io.IOException;
 import java.sql.Connection;
 
-
+import static org.jooq.impl.DSL.row;
 import static sk.catheaven.model.tables.Hashtags.HASHTAGS;
 import static sk.catheaven.model.tables.TweetHashtags.TWEET_HASHTAGS;
 import static sk.catheaven.model.tables.Tweets.TWEETS;
-import static org.jooq.impl.DSL.row;
 
 public class Solver {
     private final Connection connection;
@@ -34,7 +34,7 @@ public class Solver {
     }
 
     public void calculateSentiment() throws IOException {
-        Result<Record> tweetsResult = getAllowedTweets();
+        Result<Record> tweetsResult = getConspiracyTweets();
         if (tweetsResult == null) {
             log.error("No tweets fetched");
             return;
@@ -44,10 +44,9 @@ public class Solver {
 
         // example usage
         for (Record record: tweetsResult) {
-            String tweet = record.get(TWEETS.CONTENT);
-            SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer(tweet);
+
+            SentimentAnalyzer sentimentAnalyzer = new SentimentAnalyzer(record.get(TWEETS.CONTENT));
             sentimentAnalyzer.analyze();
-            log.debug(sentimentAnalyzer.getPolarity() + " | " + tweet);
 
             context.update(TWEETS)
                 .set(
@@ -67,12 +66,10 @@ public class Solver {
 
     private double getPolarity(SentimentAnalyzer sentimentAnalyzer, String requiredPolarity) {
         String polarityLabel = requiredPolarity.replaceAll("^\\w+_", "");
-        double polarity = sentimentAnalyzer.getPolarity().get(polarityLabel);
-        log.info("Polarity for: " + requiredPolarity + " == " + polarity);
-        return polarity;
+        return (double) sentimentAnalyzer.getPolarity().get(polarityLabel);
     }
 
-    private Result<Record> getAllowedTweets() {
+    private Result<Record> getConspiracyTweets() {
         try {
             Result<Record> tweetsResult =
                     context.select()
@@ -80,7 +77,6 @@ public class Solver {
                             .join(TWEET_HASHTAGS).on(TWEETS.ID.eq(TWEET_HASHTAGS.TWEET_ID))
                             .join(HASHTAGS).on(HASHTAGS.ID.eq(TWEET_HASHTAGS.HASHTAG_ID))
                             .where(HASHTAGS.VALUE.in(Config.hashtags))
-                            .limit(10)      /// todo: REMOVE THIS
                             .fetch();
 
             for (Record record : tweetsResult) {

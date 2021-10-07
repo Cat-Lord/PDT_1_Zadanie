@@ -3,18 +3,14 @@ package sk.catheaven.main;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.codegen.GenerationTool;
 import org.jooq.impl.DSL;
-import sk.catheaven.model.Sequences;
-import sk.catheaven.model.tables.HashtagConspiracyTheory;
 import sk.catheaven.model.tables.Tweets;
 
 import java.io.FileInputStream;
-import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -23,10 +19,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import static org.jooq.impl.DSL.foreignKey;
-import static org.jooq.impl.DSL.isnull;
 import static org.jooq.impl.DSL.primaryKey;
 import static org.jooq.impl.DSL.select;
-import static org.jooq.impl.DSL.trueCondition;
 import static org.jooq.impl.DSL.unique;
 import static org.jooq.impl.DSL.val;
 import static org.jooq.impl.SQLDataType.DOUBLE;
@@ -38,7 +32,22 @@ import static sk.catheaven.model.tables.ConspiracyTheories.CONSPIRACY_THEORIES;
 import static sk.catheaven.model.tables.HashtagConspiracyTheory.HASHTAG_CONSPIRACY_THEORY;
 import static sk.catheaven.model.tables.Hashtags.HASHTAGS;
 
-
+/**
+ *
+ *   Overenie konkretneho tweetu:
+ *     select * from tweets
+ *     join tweet_hashtags th on th.tweet_id = tweets.id
+ *     join hashtags h on h.id = th.hashtag_id
+ *     where tweets.id like '1260023108078977024';
+ *
+  *   PROOF:
+  *     select * from hashtag_conspiracy_theory hct
+  *     join conspiracy_theories ct on ct.id = hct.conspiracy_theory_id
+  *     join hashtags h on h.id = hct.hashtag_id
+  *     join tweet_hashtags th on th.hashtag_id = h.id
+  *     join tweets t on t.id = th.tweet_id
+  *
+ */
 public class Main {
     public static Properties properties;
     private static final Logger log = LogManager.getLogger();
@@ -50,31 +59,13 @@ public class Main {
         properties.load(new FileInputStream(propertiesPath));
         Main.properties = properties;
 
-        //configureDatabase();
+        if (args.length >= 1  && args[0].equals("--config")) {
+            configureDatabase();
+            populateNecessaryEntities();
+        }
 
-        // use only when... populating tables :)
-//         populateNecessaryEntities();
-
-        /**
-         * Overenie konkretneho tweetu:
-         *
-             select * from tweets
-             join tweet_hashtags th on th.tweet_id = tweets.id
-             join hashtags h on h.id = th.hashtag_id
-             where tweets.id like '1260023108078977024';
-
-         */
-        /**
-         * PROOF:
-             select * from hashtag_conspiracy_theory hct
-             join conspiracy_theories ct on ct.id = hct.conspiracy_theory_id
-             join hashtags h on h.id = hct.hashtag_id
-             join tweet_hashtags th on th.hashtag_id = h.id
-             join tweets t on t.id = th.tweet_id
-         */
-
-//        Solver solver = new Solver();
-//        solver.calculateSentiment();
+        Solver solver = new Solver();
+        solver.calculateSentiment();
     }
 
     private static void populateNecessaryEntities() {
