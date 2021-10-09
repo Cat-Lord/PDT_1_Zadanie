@@ -22,6 +22,7 @@ import sk.catheaven.model.tables.StDumprings;
 import sk.catheaven.model.tables.StHexagongrid;
 import sk.catheaven.model.tables.StSquaregrid;
 import sk.catheaven.model.tables.StSubdivide;
+import sk.catheaven.model.tables.TweetConspiracyTheory;
 import sk.catheaven.model.tables.TweetHashtags;
 import sk.catheaven.model.tables.TweetMentions;
 import sk.catheaven.model.tables.Tweets;
@@ -408,6 +409,11 @@ public class Tables {
             gridsize
         );
     }
+
+    /**
+     * The table <code>public.tweet_conspiracy_theory</code>.
+     */
+    public static final TweetConspiracyTheory TWEET_CONSPIRACY_THEORY = TweetConspiracyTheory.TWEET_CONSPIRACY_THEORY;
 
     /**
      * The table <code>public.tweet_hashtags</code>.

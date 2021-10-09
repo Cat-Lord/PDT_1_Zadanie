@@ -30,6 +30,7 @@ import sk.catheaven.model.tables.StDumprings;
 import sk.catheaven.model.tables.StHexagongrid;
 import sk.catheaven.model.tables.StSquaregrid;
 import sk.catheaven.model.tables.StSubdivide;
+import sk.catheaven.model.tables.TweetConspiracyTheory;
 import sk.catheaven.model.tables.TweetHashtags;
 import sk.catheaven.model.tables.TweetMentions;
 import sk.catheaven.model.tables.Tweets;
@@ -427,6 +428,11 @@ public class Public extends SchemaImpl {
     }
 
     /**
+     * The table <code>public.tweet_conspiracy_theory</code>.
+     */
+    public final TweetConspiracyTheory TWEET_CONSPIRACY_THEORY = TweetConspiracyTheory.TWEET_CONSPIRACY_THEORY;
+
+    /**
      * The table <code>public.tweet_hashtags</code>.
      */
     public final TweetHashtags TWEET_HASHTAGS = TweetHashtags.TWEET_HASHTAGS;
@@ -458,7 +464,8 @@ public class Public extends SchemaImpl {
     public final List<Sequence<?>> getSequences() {
         return Arrays.asList(
             Sequences.CONSPIRACY_THEORIES_SEQ,
-            Sequences.HASHTAG_CONSPIRACY_THEORY_SEQ
+            Sequences.HASHTAG_CONSPIRACY_THEORY_SEQ,
+            Sequences.TWEET_CONSPIRACY_THEORY_SEQ
         );
     }
 
@@ -479,6 +486,7 @@ public class Public extends SchemaImpl {
             StHexagongrid.ST_HEXAGONGRID,
             StSquaregrid.ST_SQUAREGRID,
             StSubdivide.ST_SUBDIVIDE,
+            TweetConspiracyTheory.TWEET_CONSPIRACY_THEORY,
             TweetHashtags.TWEET_HASHTAGS,
             TweetMentions.TWEET_MENTIONS,
             Tweets.TWEETS
