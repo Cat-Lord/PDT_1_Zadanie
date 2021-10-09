@@ -24,4 +24,9 @@ public class Sequences {
      * The sequence <code>public.hashtag_conspiracy_theory_seq</code>
      */
     public static final Sequence<Long> HASHTAG_CONSPIRACY_THEORY_SEQ = Internal.createSequence("hashtag_conspiracy_theory_seq", Public.PUBLIC, SQLDataType.BIGINT.nullable(false), null, null, null, null, false, null);
+
+    /**
+     * The sequence <code>public.tweet_conspiracy_theory_seq</code>
+     */
+    public static final Sequence<Long> TWEET_CONSPIRACY_THEORY_SEQ = Internal.createSequence("tweet_conspiracy_theory_seq", Public.PUBLIC, SQLDataType.BIGINT.nullable(false), null, null, null, null, false, null);
 }
