@@ -35,15 +35,17 @@ public class Solver {
 
     public Result<Record> getTopAccountForEachConspiracy(int topN) {
         return context.fetch("""
-                select ct.name, alpha.acc_id, alpha.name, alpha.screen_name, alpha.tweet_count from (
-                	select *, row_number () over (PARTITION BY conspiracy_theory_id) as ranked
+                select ranked, ct.name, alpha.acc_id, alpha.name, alpha.screen_name, alpha.tweet_count from (
+                	select *, row_number () over (PARTITION BY conspiracy_theory_id ORDER BY tweet_count DESC) as ranked
                 	from (
                 		select tct.conspiracy_theory_id, acc.id AS acc_id, acc.name, acc.screen_name, count(tweets.id) as tweet_count
                 		from tweet_conspiracy_theory tct
                 		join tweets on tweets.id = tct.tweet_id
                 		join accounts acc on tweets.author_id = acc.id
+                		where is_extreme(tweets.sentiment_compound) IS true
                 		group by tct.conspiracy_theory_id, acc.id
                 		order by tweet_count DESC
+                	
                 	) as slc
                 	order by conspiracy_theory_id, tweet_count DESC
                 ) alpha
