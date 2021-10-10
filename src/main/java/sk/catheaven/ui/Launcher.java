@@ -8,12 +8,14 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sk.catheaven.main.Main;
 
 public class Launcher extends Application {
     private static final Logger log = LogManager.getLogger();
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        Main.initProperties();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/main.fxml"));
         Parent layout = loader.load();
         Scene scene = new Scene(layout);

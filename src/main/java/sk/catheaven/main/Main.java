@@ -12,6 +12,8 @@ import org.jooq.impl.DSL;
 import sk.catheaven.model.tables.Tweets;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -58,13 +60,8 @@ public class Main {
     private static final Logger log = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
-        Properties properties = new Properties();
-        String resourcesPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
-        String propertiesPath = resourcesPath + "jdbc-config.properties";
-        properties.load(new FileInputStream(propertiesPath));
-        Main.properties = properties;
+        initProperties();
         Solver solver = new Solver();
-
 
         if (args.length >= 1  && args[0].equals("--config")) {
             configureDatabase();
@@ -213,5 +210,13 @@ public class Main {
                         Paths.get(ClassLoader.getSystemResource("jooq.xml").toURI())
                 )
         );
+    }
+
+    public static void initProperties() throws IOException {
+        Properties properties = new Properties();
+        String resourcesPath = Thread.currentThread().getContextClassLoader().getResource("").getPath();
+        String propertiesPath = resourcesPath + "jdbc-config.properties";
+        properties.load(new FileInputStream(propertiesPath));
+        Main.properties = properties;
     }
 }

@@ -191,7 +191,7 @@ public class Solver {
                                                         tweet_date = week
                             ) all_data
                             join conspiracy_theories ct on ct.id = conspiracy_theory_id
-                            where conspiracy_theory_id = """ + record.get(CONSPIRACY_THEORIES.ID) +
+                            where conspiracy_theory_id =\s """.concat(" ").concat("" + record.get(CONSPIRACY_THEORIES.ID)).concat("\n") +
                             """
                                     group by conspiracy_theory_id, ct.name, week
                                     order by conspiracy_theory_id, week
