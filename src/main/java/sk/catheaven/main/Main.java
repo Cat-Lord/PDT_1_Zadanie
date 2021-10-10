@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Record2;
 import org.jooq.Result;
 import org.jooq.SQLDialect;
 import org.jooq.codegen.GenerationTool;
@@ -28,6 +29,10 @@ import static org.jooq.impl.SQLDataType.INTEGER;
 import static org.jooq.impl.SQLDataType.VARCHAR;
 import static sk.catheaven.model.Sequences.CONSPIRACY_THEORIES_SEQ;
 import static sk.catheaven.model.Sequences.HASHTAG_CONSPIRACY_THEORY_SEQ;
+import static sk.catheaven.model.Sequences.TWEET_CONSPIRACY_THEORY_SEQ;
+import static sk.catheaven.model.Tables.TWEETS;
+import static sk.catheaven.model.Tables.TWEET_CONSPIRACY_THEORY;
+import static sk.catheaven.model.Tables.TWEET_HASHTAGS;
 import static sk.catheaven.model.tables.ConspiracyTheories.CONSPIRACY_THEORIES;
 import static sk.catheaven.model.tables.HashtagConspiracyTheory.HASHTAG_CONSPIRACY_THEORY;
 import static sk.catheaven.model.tables.Hashtags.HASHTAGS;
@@ -58,14 +63,20 @@ public class Main {
         String propertiesPath = resourcesPath + "jdbc-config.properties";
         properties.load(new FileInputStream(propertiesPath));
         Main.properties = properties;
+        Solver solver = new Solver();
+
 
         if (args.length >= 1  && args[0].equals("--config")) {
             configureDatabase();
             populateNecessaryEntities();
+            solver.calculateSentiment();
         }
 
-        Solver solver = new Solver();
-        solver.calculateSentiment();
+        for (Record record : solver.getTopAccountForEachConspiracy(10))
+            log.info("\n{}", record);
+
+        for (Record record : solver.getTopHashtagsForEachConspiracy(10))
+            log.info("\n{}",record);
     }
 
     private static void populateNecessaryEntities() {
@@ -78,28 +89,52 @@ public class Main {
                     .execute();
         }
 
+        populateHashtagConspiracyTheoryTable(context);
+        populateTweetConspiracyTheoryTable(context);
+    }
 
+    private static void populateHashtagConspiracyTheoryTable(DSLContext context) {
         Map<String, String> theories = Config.getTheories();
 
         // first fetch those hashtags, that belong to some theory
-        Result<Record> validHashtags = context.select().from(HASHTAGS)
-                                                .join(CONSPIRACY_THEORIES)
-                                                .on(HASHTAGS.VALUE.in(theories.keySet()))
-                                                .fetch();
+        for (String theoryHashtag : theories.keySet()) {
+            Result<Record> validHashtags = context.select()
+                    .from(HASHTAGS)
+                    .where(HASHTAGS.VALUE.likeIgnoreCase("%" + theoryHashtag + "%"))
+                    .fetch();
 
-        // and then bind that hashtag with that theory in associative table
-        for (Record validHashtag : validHashtags) {
-            String theory = theories.get(validHashtag.getValue(HASHTAGS.VALUE));
-            log.info("from map from hashtag `" + validHashtag.getValue(HASHTAGS.VALUE) + "`: " + theory);
+            for (Record currentHashtag : validHashtags) {
+                context.insertInto(HASHTAG_CONSPIRACY_THEORY)
+                        .set(HASHTAG_CONSPIRACY_THEORY.ID, HASHTAG_CONSPIRACY_THEORY_SEQ.nextval().cast(INTEGER))
+                        .set(HASHTAG_CONSPIRACY_THEORY.HASHTAG_ID, currentHashtag.get(HASHTAGS.ID))
+                        .set(HASHTAG_CONSPIRACY_THEORY.CONSPIRACY_THEORY_ID,
+                                select(CONSPIRACY_THEORIES.ID)
+                                        .from(CONSPIRACY_THEORIES)
+                                        .where(CONSPIRACY_THEORIES.NAME.eq(
+                                                theories.get(theoryHashtag))
+                                        )
+                        )
+                        .execute();
+            }
+        }
+    }
 
-            context.insertInto(HASHTAG_CONSPIRACY_THEORY)
-                    .set(HASHTAG_CONSPIRACY_THEORY.ID, HASHTAG_CONSPIRACY_THEORY_SEQ.nextval().cast(INTEGER))
-                    .set(HASHTAG_CONSPIRACY_THEORY.HASHTAG_ID, validHashtag.getValue(HASHTAGS.ID))
-                    .set(HASHTAG_CONSPIRACY_THEORY.CONSPIRACY_THEORY_ID,
-                            select(CONSPIRACY_THEORIES.ID)
+    private static void populateTweetConspiracyTheoryTable(DSLContext context) {
+
+        Result<Record2<String, Integer>> tweetConspiracyRecords =
+                            context.select(TWEETS.ID, CONSPIRACY_THEORIES.ID)
                                     .from(CONSPIRACY_THEORIES)
-                                    .where(CONSPIRACY_THEORIES.NAME.like(theory))
-                    )
+                                    .join(HASHTAG_CONSPIRACY_THEORY).on(HASHTAG_CONSPIRACY_THEORY.CONSPIRACY_THEORY_ID.eq(CONSPIRACY_THEORIES.ID))
+                                    .join(HASHTAGS).on(HASHTAGS.ID.eq(HASHTAG_CONSPIRACY_THEORY.HASHTAG_ID))
+                                    .join(TWEET_HASHTAGS).on(TWEET_HASHTAGS.HASHTAG_ID.eq(HASHTAGS.ID))
+                                    .join(TWEETS).on(TWEET_HASHTAGS.TWEET_ID.eq(TWEETS.ID))
+                                    .fetch();
+
+        for (Record tweetConspiracyRecord : tweetConspiracyRecords) {
+            context.insertInto(TWEET_CONSPIRACY_THEORY)
+                    .set(TWEET_CONSPIRACY_THEORY.ID, TWEET_CONSPIRACY_THEORY_SEQ.nextval().cast(INTEGER))
+                    .set(TWEET_CONSPIRACY_THEORY.TWEET_ID, tweetConspiracyRecord.get(TWEETS.ID))
+                    .set(TWEET_CONSPIRACY_THEORY.CONSPIRACY_THEORY_ID, tweetConspiracyRecord.get(CONSPIRACY_THEORIES.ID))
                     .execute();
         }
     }
@@ -123,19 +158,48 @@ public class Main {
                                         )
                                         .execute();
 
-       context.createTableIfNotExists("hashtag_conspiracy_theory")
-                       .column("id", INTEGER.nullable(false))
-                       .column("hashtag_id", INTEGER.nullable(true))
-                       .column("conspiracy_theory_id", INTEGER.nullable(true))
-                       .constraints(
-                               primaryKey("id"),
-                               foreignKey("hashtag_id").references(HASHTAGS),
-                               foreignKey("conspiracy_theory_id").references(CONSPIRACY_THEORIES)
-                       )
-                       .execute();
+        context.createTableIfNotExists("hashtag_conspiracy_theory")
+                        .column("id", INTEGER.nullable(false))
+                        .column("hashtag_id", INTEGER.nullable(true))
+                        .column("conspiracy_theory_id", INTEGER.nullable(true))
+                        .constraints(
+                                primaryKey("id"),
+                                foreignKey("hashtag_id").references(HASHTAGS),
+                                foreignKey("conspiracy_theory_id").references(CONSPIRACY_THEORIES)
+                        )
+                        .execute();
 
-       context.createSequenceIfNotExists("conspiracy_theories_seq").execute();
-       context.createSequenceIfNotExists("hashtag_conspiracy_theory_seq").execute();
+        context.createSequenceIfNotExists("conspiracy_theories_seq").execute();
+        context.createSequenceIfNotExists("hashtag_conspiracy_theory_seq").execute();
+
+        context.createSequenceIfNotExists("tweet_conspiracy_theory_seq").execute();
+        context.createTableIfNotExists("tweet_conspiracy_theory")
+            .column("id", INTEGER)
+            .column("tweet_id", VARCHAR(20))
+            .column("conspiracy_theory_id", INTEGER)
+            .constraints(
+                    primaryKey("id"),
+                    unique("id")
+            ).execute();
+
+        // creating functions is not available for open source version of JOOQ :(
+        context.query("""
+                CREATE OR REPLACE FUNCTION public.is_extreme(
+                	sentiment double precision)
+                    RETURNS boolean
+                    LANGUAGE 'plpgsql'
+                    COST 100
+                    VOLATILE PARALLEL UNSAFE
+                AS $BODY$
+                BEGIN
+                	return (sentiment < -0.5 OR sentiment > 0.5);
+                END;
+                $BODY$;
+                                
+                ALTER FUNCTION public.is_extreme(double precision)
+                    OWNER TO catlord;
+                                
+                """).execute();
 
         generateSchema();
     }

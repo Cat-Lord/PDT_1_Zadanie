@@ -37,7 +37,8 @@ public class Config {
             theories.put("ClimateChangeHoax", "GLobal Warming is HOAX");
             theories.put("GlobalWarmingHoax", "GLobal Warming is HOAX");
             theories.put("SorosVirus", "COVID19 and microchipping");
-            theories.put("BillGAtes", "COVID19 and microchipping");
+            theories.put("MoonLandingHoax", "Moon landing is fake");
+            theories.put("moonhoax", "Moon landing is fake");
             theories.put("5GCoronavirus", "COVID19 is preaded by 5G");
             theories.put("911truth", "9/11 was inside job");
             theories.put("911insidejob", "9/11 was inside job");

@@ -33,6 +33,46 @@ public class Solver {
         this.context = DSL.using(connection, SQLDialect.POSTGRES);
     }
 
+    public Result<Record> getTopAccountForEachConspiracy(int topN) {
+        return context.fetch("""
+                select ct.name, alpha.acc_id, alpha.name, alpha.screen_name, alpha.tweet_count from (
+                	select *, row_number () over (PARTITION BY conspiracy_theory_id) as ranked
+                	from (
+                		select tct.conspiracy_theory_id, acc.id AS acc_id, acc.name, acc.screen_name, count(tweets.id) as tweet_count
+                		from tweet_conspiracy_theory tct
+                		join tweets on tweets.id = tct.tweet_id
+                		join accounts acc on tweets.author_id = acc.id
+                		group by tct.conspiracy_theory_id, acc.id
+                		order by tweet_count DESC
+                	) as slc
+                	order by conspiracy_theory_id, tweet_count DESC
+                ) alpha
+                join conspiracy_theories ct on ct.id = conspiracy_theory_id
+                where ranked <= 
+                """ + topN);
+    }
+
+    public Result<Record> getTopHashtagsForEachConspiracy(int topN) {
+        return context.fetch("""
+                select ct.name, h.value, hashtag_count from (
+                    select *, row_number() over (
+                        partition by conspiracy_theory_id
+                        order by hashtag_count DESC
+                    ) hash_rank
+                    from (
+                        select tct.conspiracy_theory_id,th.hashtag_id, count(th.hashtag_id) hashtag_count
+                        from tweet_conspiracy_theory tct
+                        join tweets tw on tw.id = tct.tweet_id
+                        join tweet_hashtags th on th.tweet_id = tw.id
+                        group by tct.conspiracy_theory_id, th.hashtag_id
+                    ) conspiracy_with_hashtag_count
+                ) conspiracy_with_hashtag_count_and_ranks
+                join conspiracy_theories ct on ct.id = conspiracy_theory_id
+                join hashtags h on hashtag_id = h.id
+                where hash_rank <= 
+                """ + topN);
+    }
+
     public void calculateSentiment() throws IOException {
         Result<Record> tweetsResult = getConspiracyTweets();
         if (tweetsResult == null) {
@@ -60,7 +100,7 @@ public class Solver {
                         getPolarity(sentimentAnalyzer, Config.SENTIMENT_COMPOUND))
                     )
                 .where(TWEETS.ID.eq(record.get(TWEETS.ID)))
-                .execute();
+                .executeAsync();
         }
     }
 
@@ -76,7 +116,7 @@ public class Solver {
                             .from(TWEETS)
                             .join(TWEET_HASHTAGS).on(TWEETS.ID.eq(TWEET_HASHTAGS.TWEET_ID))
                             .join(HASHTAGS).on(HASHTAGS.ID.eq(TWEET_HASHTAGS.HASHTAG_ID))
-                            .where(HASHTAGS.VALUE.in(Config.hashtags))
+                            .where(HASHTAGS.VALUE.in(Config.hashtags).and(TWEETS.SENTIMENT_COMPOUND.isNull())   )
                             .fetch();
 
             for (Record record : tweetsResult) {
@@ -94,4 +134,5 @@ public class Solver {
         }
         return null;
     }
+
 }
