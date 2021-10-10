@@ -20,6 +20,7 @@ public class Launcher extends Application {
         Parent layout = loader.load();
         Scene scene = new Scene(layout);
         primaryStage.setScene(scene);
+        primaryStage.setFullScreen(true);
         primaryStage.setTitle("Theories week-by-week");
         primaryStage.show();
     }

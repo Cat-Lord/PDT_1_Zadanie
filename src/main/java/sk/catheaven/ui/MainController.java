@@ -70,13 +70,15 @@ public class MainController implements Initializable {
 
         chart = new StackedBarChart<>(x,y);
         chart.setTitle(
-                theory.field(name("name")).toString()
+                theory.get(0).get(name("name")).toString()
         );
 
         XYChart.Series<String, Integer> counts = new XYChart.Series<>();
         XYChart.Series<String, Integer> extremes = new XYChart.Series<>();
         XYChart.Series<String, Integer> neutrals = new XYChart.Series<>();
         counts.setName("Count");
+        extremes.setName("Extreme");
+        neutrals.setName("Neutral");
         for (Record record : theory) {
             counts.getData().add(
                     new XYChart.Data<>(
