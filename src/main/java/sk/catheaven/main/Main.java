@@ -71,12 +71,13 @@ public class Main {
             populateNecessaryEntities();
             solver.calculateSentiment();
         }
+        solver.calculateSentiment();
 
-        for (Record record : solver.getTopAccountForEachConspiracy(10))
-            log.info("\n{}", record);
-
-        for (Record record : solver.getTopHashtagsForEachConspiracy(10))
-            log.info("\n{}",record);
+//        for (Record record : solver.getTopAccountForEachConspiracy(10))
+//            log.info("\n{}", record);
+//
+//        for (Record record : solver.getTopHashtagsForEachConspiracy(10))
+//            log.info("\n{}",record);
     }
 
     private static void populateNecessaryEntities() {
